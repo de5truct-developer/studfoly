@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="page-header" data-aos="fade-up">
+            <h1><i class="fa-solid fa-{% if project %}pen{% else %}plus{% endif %}"></i> {{ title }}</h1>
+        </div>
+
+        <div class="form-card-page" data-aos="fade-up">
+            <form method="post" enctype="multipart/form-data" class="project-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {% for error in form.non_field_errors %}
+                    <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="id_title">Название проекта</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<span class="form-error">{{ form.title.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_slug">URL-адрес</label>
+                    {{ form.slug }}
+                    <small class="form-hint">Используется в ссылке на проект. Только латинские буквы, цифры и дефисы.</small>
+                    {% if form.slug.errors %}<span class="form-error">{{ form.slug.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_description">Описание</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<span class="form-error">{{ form.description.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_technologies">Технологии</label>
+                    {{ form.technologies }}
+                    <small class="form-hint">Перечислите через запятую</small>
+                    {% if form.technologies.errors %}<span class="form-error">{{ form.technologies.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Изображение проекта</label>
+                    {% if project and project.image %}
+                    <div class="current-image">
+                        <img src="{{ project.image.url }}" alt="" class="current-image-preview">
+                    </div>
+                    {% endif %}
+                    {{ form.image }}
+                    {% if form.image.errors %}<span class="form-error">{{ form.image.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_demo_url">Ссылка на демо</label>
+                        {{ form.demo_url }}
+                        {% if form.demo_url.errors %}<span class="form-error">{{ form.demo_url.errors.0 }}</span>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_github_url">Ссылка на GitHub</label>
+                        {{ form.github_url }}
+                        {% if form.github_url.errors %}<span class="form-error">{{ form.github_url.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-check-label">
+                        {{ form.is_featured }}
+                        Избранный проект (будет выделен в списке)
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-save"></i> {% if project %}Сохранить{% else %}Создать{% endif %}
+                    </button>
+                    {% if project %}
+                    <a href="{% url 'portfolio:project_detail' slug=project.slug %}" class="btn btn-outline">Отмена</a>
+                    {% else %}
+                    <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline">Отмена</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

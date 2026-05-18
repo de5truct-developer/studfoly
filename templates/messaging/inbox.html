@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Сообщения — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="page-header" data-aos="fade-up">
+            <h1><i class="fa-solid fa-envelope"></i> Сообщения</h1>
+        </div>
+
+        <div class="inbox-container" data-aos="fade-up">
+            {% if conversations %}
+            <div class="conversations-list">
+                {% for item in conversations %}
+                <a href="{% url 'messaging:conversation' conversation_id=item.conversation.id %}" class="conversation-item {% if item.unread_count > 0 %}unread{% endif %}">
+                    <div class="conversation-avatar">
+                        {% if item.other_user and item.other_user.profile.avatar %}
+                        <img src="{{ item.other_user.profile.avatar.url }}" alt="">
+                        {% else %}
+                        <div class="conversation-avatar-placeholder">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="conversation-content">
+                        <div class="conversation-header">
+                            <h4 class="conversation-name">
+                                {% if item.other_user %}
+                                {{ item.other_user.get_full_name|default:item.other_user.username }}
+                                {% else %}
+                                Диалог
+                                {% endif %}
+                            </h4>
+                            {% if item.last_message %}
+                            <span class="conversation-time">{{ item.last_message.created_at|timesince }} назад</span>
+                            {% endif %}
+                        </div>
+                        {% if item.last_message %}
+                        <p class="conversation-preview">
+                            {% if item.last_message.sender == user %}
+                            <span class="you-label">Вы: </span>
+                            {% endif %}
+                            {{ item.last_message.text|truncatewords:10 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% if item.unread_count > 0 %}
+                    <span class="conversation-badge">{{ item.unread_count }}</span>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-envelope-open"></i>
+                <h3>Нет сообщений</h3>
+                <p>Начните общение, написав другому пользователю с его страницы профиля.</p>
+                <a href="{% url 'portfolio:home' %}" class="btn btn-primary btn-sm">Найти пользователей</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

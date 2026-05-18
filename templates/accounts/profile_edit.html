@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Редактировать профиль — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="page-header" data-aos="fade-up">
+            <h1><i class="fa-solid fa-gear"></i> Редактировать профиль</h1>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="edit-form" data-aos="fade-up">
+            {% csrf_token %}
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button type="button" class="tab-btn active" data-tab="personal">
+                    <i class="fa-solid fa-user"></i> Личные данные
+                </button>
+                <button type="button" class="tab-btn" data-tab="contacts">
+                    <i class="fa-solid fa-address-book"></i> Контакты
+                </button>
+                <button type="button" class="tab-btn" data-tab="about">
+                    <i class="fa-solid fa-info-circle"></i> О себе
+                </button>
+            </div>
+
+            <!-- Personal tab -->
+            <div class="tab-content active" id="tab-personal">
+                <div class="form-card">
+                    <h3>Основная информация</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="id_first_name">Имя</label>
+                            {{ user_form.first_name }}
+                            {% if user_form.first_name.errors %}<span class="form-error">{{ user_form.first_name.errors.0 }}</span>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_last_name">Фамилия</label>
+                            {{ user_form.last_name }}
+                            {% if user_form.last_name.errors %}<span class="form-error">{{ user_form.last_name.errors.0 }}</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_email">Email</label>
+                        {{ user_form.email }}
+                        {% if user_form.email.errors %}<span class="form-error">{{ user_form.email.errors.0 }}</span>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_title">Специализация</label>
+                        {{ profile_form.title }}
+                        {% if profile_form.title.errors %}<span class="form-error">{{ profile_form.title.errors.0 }}</span>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_city">Город</label>
+                        {{ profile_form.city }}
+                        {% if profile_form.city.errors %}<span class="form-error">{{ profile_form.city.errors.0 }}</span>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label>Аватар</label>
+                        <div class="avatar-upload">
+                            {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="" class="avatar-preview" id="avatarPreview">
+                            {% else %}
+                            <div class="avatar-preview-placeholder" id="avatarPreview">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                            {% endif %}
+                            {{ profile_form.avatar }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ profile_form.is_available }}
+                            Доступен для работы/проектов
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contacts tab -->
+            <div class="tab-content" id="tab-contacts">
+                <div class="form-card">
+                    <h3>Контактная информация</h3>
+                    <div class="form-group">
+                        <label for="id_phone">Телефон</label>
+                        {{ profile_form.phone }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_telegram">Telegram</label>
+                        {{ profile_form.telegram }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_github">GitHub</label>
+                        {{ profile_form.github }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_linkedin">LinkedIn</label>
+                        {{ profile_form.linkedin }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_website">Сайт</label>
+                        {{ profile_form.website }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- About tab -->
+            <div class="tab-content" id="tab-about">
+                <div class="form-card">
+                    <h3>О себе</h3>
+                    <div class="form-group">
+                        <label for="id_bio">Биография</label>
+                        {{ profile_form.bio }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_skills_summary">Краткое описание навыков</label>
+                        {{ profile_form.skills_summary }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-save"></i> Сохранить
+                </button>
+                <a href="{% url 'accounts:profile' username=user.username %}" class="btn btn-outline">Отмена</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Закладки — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="page-header" data-aos="fade-up">
+            <h1><i class="fa-solid fa-bookmark"></i> Мои закладки</h1>
+        </div>
+
+        <div class="projects-grid">
+            {% for bookmark in bookmarks %}
+            <div class="project-card" data-aos="fade-up">
+                <a href="{% url 'portfolio:project_detail' slug=bookmark.project.slug %}" class="project-card-link">
+                    <div class="project-image-wrapper">
+                        {% if bookmark.project.image %}
+                        <img src="{{ bookmark.project.image.url }}" alt="{{ bookmark.project.title }}" class="project-image">
+                        {% else %}
+                        <div class="project-image-placeholder">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="project-info">
+                    <a href="{% url 'portfolio:project_detail' slug=bookmark.project.slug %}" class="project-title-link">
+                        <h3 class="project-title">{{ bookmark.project.title }}</h3>
+                    </a>
+                    <div class="project-author">
+                        {% if bookmark.project.user.profile.avatar %}
+                        <img src="{{ bookmark.project.user.profile.avatar.url }}" alt="" class="project-author-avatar">
+                        {% else %}
+                        <div class="project-author-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                        {% endif %}
+                        <a href="{% url 'accounts:profile' username=bookmark.project.user.username %}">
+                            {{ bookmark.project.user.get_full_name|default:bookmark.project.user.username }}
+                        </a>
+                    </div>
+                    <div class="project-tech">
+                        {% for tech in bookmark.project.tech_list %}
+                        <span class="tech-tag">{{ tech }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state-full" data-aos="fade-up">
+                <i class="fa-solid fa-bookmark"></i>
+                <h3>Закладок пока нет</h3>
+                <p>Нажмите на иконку закладки на странице проекта, чтобы сохранить его.</p>
+                <a href="{% url 'portfolio:project_list' %}" class="btn btn-primary btn-sm">Посмотреть проекты</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

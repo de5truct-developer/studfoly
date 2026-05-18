@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.title }} — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <a href="{% url 'portfolio:project_list' %}" class="back-link" data-aos="fade-up">
+            <i class="fa-solid fa-arrow-left"></i> Назад к проектам
+        </a>
+
+        <div class="project-detail" data-aos="fade-up">
+            <!-- Project Image -->
+            {% if project.image %}
+            <div class="project-detail-image">
+                <img src="{{ project.image.url }}" alt="{{ project.title }}">
+            </div>
+            {% endif %}
+
+            <!-- Project Header -->
+            <div class="project-detail-header">
+                <div class="project-detail-title-row">
+                    <h1>{{ project.title }}</h1>
+                    <div class="project-detail-actions">
+                        {% if user.is_authenticated %}
+                        <button class="action-btn like-btn {% if user_has_liked %}active{% endif %}" data-project-id="{{ project.id }}" id="likeBtn">
+                            <i class="fa-{% if user_has_liked %}solid{% else %}regular{% endif %} fa-heart"></i>
+                            <span id="likesCount">{{ likes_count }}</span>
+                        </button>
+                        <button class="action-btn bookmark-btn {% if user_has_bookmarked %}active{% endif %}" data-project-id="{{ project.id }}" id="bookmarkBtn">
+                            <i class="fa-{% if user_has_bookmarked %}solid{% else %}regular{% endif %} fa-bookmark"></i>
+                        </button>
+                        {% else %}
+                        <span class="action-btn">
+                            <i class="fa-regular fa-heart"></i>
+                            <span>{{ likes_count }}</span>
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Tech tags -->
+                <div class="project-tech">
+                    {% for tech in project.tech_list %}
+                    <span class="tech-tag">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Links -->
+                <div class="project-detail-links">
+                    {% if project.demo_url %}
+                    <a href="{{ project.demo_url }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Демо
+                    </a>
+                    {% endif %}
+                    {% if project.github_url %}
+                    <a href="{{ project.github_url }}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+                        <i class="fa-brands fa-github"></i> Исходный код
+                    </a>
+                    {% endif %}
+                    {% if user == project.user %}
+                    <a href="{% url 'portfolio:project_edit' slug=project.slug %}" class="btn btn-outline btn-sm">
+                        <i class="fa-solid fa-pen"></i> Редактировать
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Author Card -->
+                <div class="project-author-card">
+                    <a href="{% url 'accounts:profile' username=project.user.username %}" class="project-author-card-link">
+                        {% if project.user.profile.avatar %}
+                        <img src="{{ project.user.profile.avatar.url }}" alt="" class="project-author-card-avatar">
+                        {% else %}
+                        <div class="project-author-card-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                        {% endif %}
+                        <div>
+                            <h4>{{ project.user.get_full_name|default:project.user.username }}</h4>
+                            {% if project.user.profile.title %}
+                            <p>{{ project.user.profile.title }}</p>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Description -->
+                <div class="project-detail-description">
+                    {{ project.description|linebreaksbr }}
+                </div>
+            </div>
+
+            <!-- Gallery -->
+            {% if gallery %}
+            <div class="project-detail-gallery">
+                <h2>Галерея</h2>
+                <div class="gallery-grid">
+                    {% for img in gallery %}
+                    <div class="gallery-item">
+                        <img src="{{ img.image.url }}" alt="{{ img.caption }}">
+                        {% if img.caption %}
+                        <p class="gallery-caption">{{ img.caption }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Comments -->
+            <div class="comments-section" id="commentsSection">
+                <h2><i class="fa-solid fa-comments"></i> Комментарии ({{ comments_count }})</h2>
+
+                {% if user.is_authenticated %}
+                <form class="comment-form" id="commentForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="project_id" value="{{ project.id }}">
+                    <div class="comment-form-body">
+                        {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="" class="comment-avatar">
+                        {% else %}
+                        <div class="comment-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                        {% endif %}
+                        <textarea name="text" placeholder="Оставьте комментарий..." rows="2" class="form-control" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm comment-submit">
+                        <i class="fa-solid fa-paper-plane"></i> Отправить
+                    </button>
+                </form>
+                {% else %}
+                <p class="comment-login-prompt">
+                    <a href="{% url 'accounts:login' %}?next={{ request.path }}">Войдите</a>, чтобы оставить комментарий.
+                </p>
+                {% endif %}
+
+                <div class="comments-list" id="commentsList">
+                    {% for comment in comments %}
+                    <div class="comment" id="comment-{{ comment.id }}">
+                        <div class="comment-header">
+                            {% if comment.user.profile.avatar %}
+                            <img src="{{ comment.user.profile.avatar.url }}" alt="" class="comment-avatar">
+                            {% else %}
+                            <div class="comment-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                            {% endif %}
+                            <div class="comment-meta">
+                                <a href="{% url 'accounts:profile' username=comment.user.username %}" class="comment-author">
+                                    {{ comment.user.get_full_name|default:comment.user.username }}
+                                </a>
+                                <span class="comment-date">{{ comment.created_at|timesince }} назад</span>
+                            </div>
+                            {% if user == comment.user %}
+                            <button class="comment-delete-btn" data-comment-id="{{ comment.id }}" title="Удалить">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        <p class="comment-text">{{ comment.text }}</p>
+                        {% if user.is_authenticated %}
+                        <button class="comment-reply-btn" data-comment-id="{{ comment.id }}">
+                            <i class="fa-solid fa-reply"></i> Ответить
+                        </button>
+                        {% endif %}
+
+                        <!-- Replies -->
+                        {% if comment.replies.all %}
+                        <div class="comment-replies">
+                            {% for reply in comment.replies.all %}
+                            <div class="comment reply" id="comment-{{ reply.id }}">
+                                <div class="comment-header">
+                                    {% if reply.user.profile.avatar %}
+                                    <img src="{{ reply.user.profile.avatar.url }}" alt="" class="comment-avatar">
+                                    {% else %}
+                                    <div class="comment-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                                    {% endif %}
+                                    <div class="comment-meta">
+                                        <a href="{% url 'accounts:profile' username=reply.user.username %}" class="comment-author">
+                                            {{ reply.user.get_full_name|default:reply.user.username }}
+                                        </a>
+                                        <span class="comment-date">{{ reply.created_at|timesince }} назад</span>
+                                    </div>
+                                    {% if user == reply.user %}
+                                    <button class="comment-delete-btn" data-comment-id="{{ reply.id }}" title="Удалить">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                <p class="comment-text">{{ reply.text }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="comments-empty">Комментариев пока нет. Будьте первым!</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
