@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Диалог с {{ other_user.get_full_name|default:other_user.username }} — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="chat-section">
+    <div class="container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <a href="{% url 'messaging:inbox' %}" class="chat-back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div class="chat-user-info">
+                {% if other_user.profile.avatar %}
+                <img src="{{ other_user.profile.avatar.url }}" alt="" class="chat-avatar">
+                {% else %}
+                <div class="chat-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                {% endif %}
+                <div>
+                    <h3>{{ other_user.get_full_name|default:other_user.username }}</h3>
+                    {% if other_user.profile.title %}
+                    <p>{{ other_user.profile.title }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'accounts:profile' username=other_user.username %}" class="btn btn-outline btn-xs">
+                <i class="fa-solid fa-user"></i> Профиль
+            </a>
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages" data-conversation-id="{{ conversation.id }}">
+            {% for msg in messages_list %}
+            <div class="chat-message {% if msg.sender == user %}sent{% else %}received{% endif %}" data-message-id="{{ msg.id }}">
+                {% if msg.sender != user %}
+                <div class="chat-message-avatar">
+                    {% if msg.sender.profile.avatar %}
+                    <img src="{{ msg.sender.profile.avatar.url }}" alt="">
+                    {% else %}
+                    <div class="chat-msg-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="chat-message-bubble">
+                    <p>{{ msg.text }}</p>
+                    <span class="chat-message-time">{{ msg.created_at|date:"H:i" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-container">
+            <form class="chat-input-form" id="chatForm">
+                {% csrf_token %}
+                <input type="hidden" name="conversation_id" value="{{ conversation.id }}">
+                <textarea name="text" class="chat-input" id="chatInput" placeholder="Напишите сообщение..." rows="1"></textarea>
+                <button type="submit" class="chat-send-btn" id="chatSendBtn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

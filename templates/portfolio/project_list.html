@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Проекты — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="page-header" data-aos="fade-up">
+            <h1><i class="fa-solid fa-folder-open"></i> Все проекты</h1>
+            {% if user.is_authenticated %}
+            <a href="{% url 'portfolio:project_create' %}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-plus"></i> Добавить проект
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Search & Filters -->
+        <div class="search-filters" data-aos="fade-up">
+            <form method="get" class="search-form">
+                <div class="search-input-wrapper">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" name="q" value="{{ query }}" placeholder="Поиск проектов..." class="search-input">
+                </div>
+                <select name="tech" class="search-select" onchange="this.form.submit()">
+                    <option value="">Все технологии</option>
+                    {% for t in all_techs %}
+                    <option value="{{ t }}" {% if tech == t %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Найти</button>
+            </form>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="projects-grid">
+            {% for project in projects %}
+            <div class="project-card" data-aos="fade-up">
+                <a href="{% url 'portfolio:project_detail' slug=project.slug %}" class="project-card-link">
+                    <div class="project-image-wrapper">
+                        {% if project.image %}
+                        <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-image">
+                        {% else %}
+                        <div class="project-image-placeholder">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        {% endif %}
+                        {% if project.is_featured %}
+                        <span class="project-badge">Избранный</span>
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="project-info">
+                    <a href="{% url 'portfolio:project_detail' slug=project.slug %}" class="project-title-link">
+                        <h3 class="project-title">{{ project.title }}</h3>
+                    </a>
+                    <div class="project-author">
+                        {% if project.user.profile.avatar %}
+                        <img src="{{ project.user.profile.avatar.url }}" alt="" class="project-author-avatar">
+                        {% else %}
+                        <div class="project-author-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                        {% endif %}
+                        <a href="{% url 'accounts:profile' username=project.user.username %}">{{ project.user.get_full_name|default:project.user.username }}</a>
+                    </div>
+                    <p class="project-description">{{ project.description|truncatewords:20 }}</p>
+                    <div class="project-tech">
+                        {% for tech in project.tech_list %}
+                        <span class="tech-tag">{{ tech }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="project-card-footer">
+                        <span class="project-stat"><i class="fa-solid fa-heart"></i> {{ project.likes_count }}</span>
+                        <span class="project-stat"><i class="fa-solid fa-comment"></i> {{ project.comments_count }}</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state-full" data-aos="fade-up">
+                <i class="fa-solid fa-folder-open"></i>
+                <h3>Проекты не найдены</h3>
+                <p>Попробуйте изменить параметры поиска</p>
+                <a href="{% url 'portfolio:project_list' %}" class="btn btn-outline btn-sm">Сбросить фильтры</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

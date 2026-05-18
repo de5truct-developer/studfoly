@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Вход — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-card" data-aos="fade-up">
+            <div class="auth-header">
+                <i class="fa-solid fa-right-to-bracket auth-icon"></i>
+                <h1>Войти в аккаунт</h1>
+                <p>Введите данные для входа</p>
+            </div>
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Имя пользователя</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="username" name="username" placeholder="Имя пользователя" required class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Пароль" required class="form-control">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fa-solid fa-right-to-bracket"></i> Войти
+                </button>
+            </form>
+            <div class="auth-footer">
+                <p>Нет аккаунта? <a href="{% url 'accounts:register' %}">Зарегистрироваться</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

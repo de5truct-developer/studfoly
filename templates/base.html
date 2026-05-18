@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="СтудФолио — платформа портфолио для студентов">
+    <title>{% block title %}СтудФолио{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- AOS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body data-theme="{{ current_theme|default:'light' }}">
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="{% url 'portfolio:home' %}" class="nav-logo">
+                <i class="fa-solid fa-graduation-cap logo-icon"></i>
+                <span class="logo-text">СтудФолио</span>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Меню">
+                <span class="hamburger"></span>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="{% url 'portfolio:home' %}" class="nav-link"><i class="fa-solid fa-users"></i> Кандидаты</a></li>
+                <li><a href="{% url 'portfolio:project_list' %}" class="nav-link"><i class="fa-solid fa-folder-open"></i> Проекты</a></li>
+                {% if user.is_authenticated %}
+                <li>
+                    <a href="{% url 'messaging:inbox' %}" class="nav-link nav-link-messages">
+                        <i class="fa-solid fa-envelope"></i> Сообщения
+                        {% if unread_messages_count > 0 %}
+                        <span class="nav-badge" id="navUnreadBadge">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li><a href="{% url 'interactions:bookmarks_list' %}" class="nav-link"><i class="fa-solid fa-bookmark"></i> Закладки</a></li>
+                <li class="nav-dropdown">
+                    <button class="nav-link nav-dropdown-toggle" id="profileDropdownToggle">
+                        {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="" class="nav-avatar">
+                        {% else %}
+                        <i class="fa-solid fa-user-circle"></i>
+                        {% endif %}
+                        {{ user.first_name|default:user.username }}
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" id="profileDropdownMenu">
+                        <a href="{% url 'accounts:profile' username=user.username %}" class="nav-dropdown-item">
+                            <i class="fa-solid fa-user"></i> Мой профиль
+                        </a>
+                        <a href="{% url 'accounts:dashboard' %}" class="nav-dropdown-item">
+                            <i class="fa-solid fa-chart-line"></i> Панель управления
+                        </a>
+                        <a href="{% url 'accounts:profile_edit' %}" class="nav-dropdown-item">
+                            <i class="fa-solid fa-gear"></i> Настройки
+                        </a>
+                        <a href="{% url 'portfolio:project_create' %}" class="nav-dropdown-item">
+                            <i class="fa-solid fa-plus"></i> Новый проект
+                        </a>
+                        <div class="nav-dropdown-divider"></div>
+                        <a href="{% url 'accounts:logout' %}" class="nav-dropdown-item nav-dropdown-danger">
+                            <i class="fa-solid fa-right-from-bracket"></i> Выход
+                        </a>
+                    </div>
+                </li>
+                {% else %}
+                <li><a href="{% url 'accounts:login' %}" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Войти</a></li>
+                <li><a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm nav-btn">Регистрация</a></li>
+                {% endif %}
+            </ul>
+
+            <button class="theme-toggle" id="themeToggle" aria-label="Сменить тему">
+                <i class="fa-solid fa-sun theme-icon-light"></i>
+                <i class="fa-solid fa-moon theme-icon-dark"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="toast-container" id="toastContainer">
+        {% for message in messages %}
+        <div class="toast toast-{{ message.tags }}" data-auto-close="5000">
+            <div class="toast-content">
+                {% if message.tags == 'success' %}
+                <i class="fa-solid fa-circle-check"></i>
+                {% elif message.tags == 'error' %}
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {% elif message.tags == 'warning' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="{% url 'portfolio:home' %}" class="footer-logo">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>СтудФолио</span>
+                    </a>
+                    <p class="footer-desc">Платформа для студентов, где можно создать портфолио, продемонстрировать проекты и найти единомышленников.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Навигация</h4>
+                    <a href="{% url 'portfolio:home' %}">Кандидаты</a>
+                    <a href="{% url 'portfolio:project_list' %}">Проекты</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:dashboard' %}">Панель управления</a>
+                    {% else %}
+                    <a href="{% url 'accounts:register' %}">Регистрация</a>
+                    {% endif %}
+                </div>
+                <div class="footer-links">
+                    <h4>Платформа</h4>
+                    <a href="{% url 'admin:index' %}">Админ-панель</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024&ndash;2026 СтудФолио. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to top -->
+    <button class="back-to-top" id="backToTop" aria-label="Наверх">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- CSRF token for AJAX -->
+    <script>
+        const CSRF_TOKEN = '{{ csrf_token }}';
+        const IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
+        const CURRENT_USER_ID = {{ user.id|default:"0" }};
+    </script>
+
+    <!-- AOS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

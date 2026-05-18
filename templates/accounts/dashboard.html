@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Панель управления — СтудФолио{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="page-header" data-aos="fade-up">
+            <h1><i class="fa-solid fa-chart-line"></i> Панель управления</h1>
+            <a href="{% url 'portfolio:project_create' %}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-plus"></i> Новый проект
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" data-aos="fade-up">
+            <div class="stat-card">
+                <div class="stat-card-icon blue">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <div class="stat-card-info">
+                    <span class="stat-card-number">{{ projects_count }}</span>
+                    <span class="stat-card-label">Проектов</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon red">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <div class="stat-card-info">
+                    <span class="stat-card-number">{{ total_likes }}</span>
+                    <span class="stat-card-label">Лайков</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon green">
+                    <i class="fa-solid fa-eye"></i>
+                </div>
+                <div class="stat-card-info">
+                    <span class="stat-card-number">{{ total_views }}</span>
+                    <span class="stat-card-label">Просмотров профиля</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon purple">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div class="stat-card-info">
+                    <span class="stat-card-number">{{ unread_messages }}</span>
+                    <span class="stat-card-label">Новых сообщений</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Projects List -->
+            <div class="dashboard-card" data-aos="fade-up">
+                <div class="dashboard-card-header">
+                    <h2><i class="fa-solid fa-folder-open"></i> Мои проекты</h2>
+                    <a href="{% url 'portfolio:project_create' %}" class="btn btn-outline btn-xs">
+                        <i class="fa-solid fa-plus"></i> Добавить
+                    </a>
+                </div>
+                <div class="dashboard-card-body">
+                    {% if projects %}
+                    <div class="dashboard-project-list">
+                        {% for project in projects %}
+                        <div class="dashboard-project-item">
+                            <div class="dashboard-project-info">
+                                {% if project.image %}
+                                <img src="{{ project.image.url }}" alt="" class="dashboard-project-thumb">
+                                {% else %}
+                                <div class="dashboard-project-thumb-placeholder">
+                                    <i class="fa-solid fa-code"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <a href="{% url 'portfolio:project_detail' slug=project.slug %}" class="dashboard-project-title">{{ project.title }}</a>
+                                    <div class="dashboard-project-stats">
+                                        <span><i class="fa-solid fa-heart"></i> {{ project.likes_count }}</span>
+                                        <span><i class="fa-solid fa-comment"></i> {{ project.comments_count }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dashboard-project-actions">
+                                <a href="{% url 'portfolio:project_edit' slug=project.slug %}" class="btn btn-ghost btn-xs" title="Редактировать">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <a href="{% url 'portfolio:project_delete' slug=project.slug %}" class="btn btn-danger btn-xs" title="Удалить">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>У вас пока нет проектов</p>
+                        <a href="{% url 'portfolio:project_create' %}" class="btn btn-primary btn-sm">Создать первый проект</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Comments -->
+            <div class="dashboard-card" data-aos="fade-up">
+                <div class="dashboard-card-header">
+                    <h2><i class="fa-solid fa-comments"></i> Последние комментарии</h2>
+                </div>
+                <div class="dashboard-card-body">
+                    {% if recent_comments %}
+                    <div class="dashboard-comments-list">
+                        {% for comment in recent_comments %}
+                        <div class="dashboard-comment-item">
+                            <div class="dashboard-comment-avatar">
+                                {% if comment.user.profile.avatar %}
+                                <img src="{{ comment.user.profile.avatar.url }}" alt="">
+                                {% else %}
+                                <i class="fa-solid fa-user"></i>
+                                {% endif %}
+                            </div>
+                            <div class="dashboard-comment-content">
+                                <p class="dashboard-comment-author">
+                                    {{ comment.user.get_full_name|default:comment.user.username }}
+                                    <span>прокомментировал</span>
+                                    <a href="{% url 'portfolio:project_detail' slug=comment.project.slug %}">{{ comment.project.title }}</a>
+                                </p>
+                                <p class="dashboard-comment-text">{{ comment.text|truncatewords:20 }}</p>
+                                <span class="dashboard-comment-date">{{ comment.created_at|timesince }} назад</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-comments"></i>
+                        <p>Комментариев пока нет</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}СтудФолио — Найди талантливых студентов{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-home" id="hero">
+    <div class="hero-home-bg"></div>
+    <div class="container hero-home-container">
+        <div class="hero-home-content" data-aos="fade-up" data-aos-duration="1000">
+            <h1 class="hero-home-title">Найди <span class="gradient-text">талантливых</span> студентов</h1>
+            <p class="hero-home-subtitle">Платформа для студентов, где можно создать портфолио, продемонстрировать проекты и найти единомышленников</p>
+
+            <!-- Search -->
+            <form class="hero-search" method="get" action="" id="searchForm">
+                <div class="hero-search-input-wrapper">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" name="q" value="{{ query }}" placeholder="Поиск по имени, специализации..." class="hero-search-input" id="searchInput">
+                </div>
+                <button type="submit" class="btn btn-primary">Найти</button>
+            </form>
+
+            <!-- Filter chips -->
+            <div class="filter-chips">
+                <a href="?available=1" class="filter-chip {% if available_only %}active{% endif %}">
+                    <i class="fa-solid fa-check-circle"></i> Доступные
+                </a>
+                {% for c in cities|slice:":6" %}
+                <a href="?city={{ c }}" class="filter-chip {% if city == c %}active{% endif %}">
+                    <i class="fa-solid fa-location-dot"></i> {{ c }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Users Grid -->
+<section class="section">
+    <div class="container">
+        <div class="section-header" data-aos="fade-up">
+            <h2>Кандидаты</h2>
+            <span class="results-count">{{ users|length }} человек</span>
+        </div>
+
+        <div class="users-grid">
+            {% for u in users %}
+            <div class="user-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|divisibleby:1 }}0">
+                <div class="user-card-header">
+                    <div class="user-card-avatar">
+                        {% if u.profile.avatar %}
+                        <img src="{{ u.profile.avatar.url }}" alt="{{ u.get_full_name }}">
+                        {% else %}
+                        <div class="user-card-avatar-placeholder">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if u.profile.is_available %}
+                    <span class="user-card-available">Доступен</span>
+                    {% endif %}
+                </div>
+                <div class="user-card-body">
+                    <h3 class="user-card-name">{{ u.get_full_name|default:u.username }}</h3>
+                    {% if u.profile.title %}
+                    <p class="user-card-title">{{ u.profile.title }}</p>
+                    {% endif %}
+                    {% if u.profile.city %}
+                    <p class="user-card-location"><i class="fa-solid fa-location-dot"></i> {{ u.profile.city }}</p>
+                    {% endif %}
+
+                    {% with top_skills=u.skills.all|slice:":4" %}
+                    {% if top_skills %}
+                    <div class="user-card-skills">
+                        {% for skill in top_skills %}
+                        <span class="skill-badge">{{ skill.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="user-card-stats">
+                        <span><i class="fa-solid fa-folder-open"></i> {{ u.projects_count }} проектов</span>
+                    </div>
+                </div>
+                <div class="user-card-footer">
+                    <a href="{% url 'accounts:profile' username=u.username %}" class="btn btn-outline btn-sm btn-full">
+                        Посмотреть профиль
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state-full" data-aos="fade-up">
+                <i class="fa-solid fa-users-slash"></i>
+                <h3>Пользователи не найдены</h3>
+                <p>Попробуйте изменить параметры поиска</p>
+                <a href="{% url 'portfolio:home' %}" class="btn btn-outline btn-sm">Сбросить фильтры</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
