@@ -11,6 +11,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('messages/', include('messaging.urls', namespace='messaging')),
     path('interactions/', include('interactions.urls', namespace='interactions')),
+    path('subscriptions/', include('subscriptions.urls', namespace='subscriptions')),
 ]
 
 if settings.DEBUG:

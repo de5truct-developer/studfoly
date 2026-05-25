@@ -73,6 +73,9 @@
                         <a href="{% url 'portfolio:project_create' %}" class="nav-dropdown-item">
                             <i class="fa-solid fa-plus"></i> Новый проект
                         </a>
+                        <a href="{% url 'subscriptions:my_subscription' %}" class="nav-dropdown-item">
+                            <i class="fa-solid fa-crown"></i> Подписка
+                        </a>
                         <div class="nav-dropdown-divider"></div>
                         <a href="{% url 'accounts:logout' %}" class="nav-dropdown-item nav-dropdown-danger">
                             <i class="fa-solid fa-right-from-bracket"></i> Выход
@@ -145,6 +148,7 @@
                 </div>
                 <div class="footer-links">
                     <h4>Платформа</h4>
+                    <a href="{% url 'subscriptions:plans' %}">Тарифы</a>
                     <a href="{% url 'admin:index' %}">Админ-панель</a>
                 </div>
             </div>

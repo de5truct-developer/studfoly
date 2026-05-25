@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Оплата — {{ plan.display_name }} — СтудФолио{% endblock %}
+
+{% block extra_css %}
+<style>
+.checkout-section {
+    padding: 60px 0;
+    min-height: 70vh;
+}
+
+.checkout-container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.checkout-summary {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 35px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.checkout-summary h2 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    margin-bottom: 25px;
+    color: var(--text-primary);
+}
+
+.checkout-plan-info {
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+}
+
+.checkout-plan-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.checkout-plan-period {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.checkout-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 2px solid var(--border-color);
+    margin-top: 20px;
+}
+
+.checkout-total-label {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.checkout-total-amount {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.checkout-period-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.period-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: all var(--transition);
+}
+
+.period-btn.active {
+    border-color: var(--accent-primary);
+    background: var(--accent-primary);
+    color: white;
+}
+
+.period-btn .save-badge {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--success);
+    font-weight: 600;
+}
+
+.period-btn.active .save-badge {
+    color: rgba(255,255,255,0.8);
+}
+
+.checkout-form {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 35px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.checkout-form h2 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    margin-bottom: 25px;
+    color: var(--text-primary);
+}
+
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.payment-method-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.payment-method-option:hover {
+    border-color: var(--accent-primary);
+}
+
+.payment-method-option input[type="radio"] {
+    accent-color: var(--accent-primary);
+    width: 18px;
+    height: 18px;
+}
+
+.payment-method-option input[type="radio"]:checked + .payment-method-label {
+    color: var(--text-primary);
+}
+
+.payment-method-option:has(input:checked) {
+    border-color: var(--accent-primary);
+    background: var(--bg-secondary);
+}
+
+.payment-method-label {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.payment-method-label i {
+    font-size: 1.2rem;
+}
+
+.card-fields {
+    display: grid;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-field label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.form-field input {
+    padding: 12px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color var(--transition);
+}
+
+.form-field input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.checkout-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.checkout-submit:hover {
+    box-shadow: var(--shadow-accent);
+    transform: translateY(-2px);
+}
+
+.checkout-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.checkout-secure i {
+    color: var(--success);
+}
+
+@media (max-width: 768px) {
+    .checkout-container {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="checkout-section">
+    <div class="container">
+        <div class="checkout-container" data-aos="fade-up">
+            <div class="checkout-summary">
+                <h2><i class="fa-solid fa-receipt"></i> Ваш заказ</h2>
+
+                <div class="checkout-period-toggle">
+                    <a href="{% url 'subscriptions:checkout_period' plan_name=plan.name period='monthly' %}" class="period-btn {% if period == 'monthly' %}active{% endif %}">
+                        Ежемесячно
+                    </a>
+                    <a href="{% url 'subscriptions:checkout_period' plan_name=plan.name period='yearly' %}" class="period-btn {% if period == 'yearly' %}active{% endif %}">
+                        Ежегодно
+                        <span class="save-badge">Экономия ~17%</span>
+                    </a>
+                </div>
+
+                <div class="checkout-plan-info">
+                    <div class="checkout-plan-name">
+                        {% if plan.name == 'basic' %}<i class="fa-solid fa-rocket"></i>
+                        {% else %}<i class="fa-solid fa-crown"></i>{% endif %}
+                        {{ plan.display_name }}
+                    </div>
+                    <div class="checkout-plan-period">
+                        Подписка на 1 {{ period_label }}
+                    </div>
+                </div>
+
+                <div class="checkout-total">
+                    <span class="checkout-total-label">Итого:</span>
+                    <span class="checkout-total-amount">{{ amount|floatformat:0 }} ₸</span>
+                </div>
+            </div>
+
+            <div class="checkout-form">
+                <h2><i class="fa-solid fa-credit-card"></i> Способ оплаты</h2>
+
+                <form method="post" action="{% url 'subscriptions:process_payment' %}" id="paymentForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="plan" value="{{ plan.name }}">
+                    <input type="hidden" name="period" value="{{ period }}">
+
+                    <div class="payment-methods">
+                        <label class="payment-method-option">
+                            <input type="radio" name="payment_method" value="card" checked>
+                            <span class="payment-method-label">
+                                <i class="fa-solid fa-credit-card"></i> Банковская карта
+                            </span>
+                        </label>
+                        <label class="payment-method-option">
+                            <input type="radio" name="payment_method" value="kaspi">
+                            <span class="payment-method-label">
+                                <i class="fa-solid fa-mobile-screen"></i> Kaspi Pay
+                            </span>
+                        </label>
+                        <label class="payment-method-option">
+                            <input type="radio" name="payment_method" value="halyk">
+                            <span class="payment-method-label">
+                                <i class="fa-solid fa-building-columns"></i> Halyk Bank
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="card-fields" id="cardFields">
+                        <div class="form-field">
+                            <label>Номер карты</label>
+                            <input type="text" placeholder="0000 0000 0000 0000" maxlength="19">
+                        </div>
+                        <div class="card-row">
+                            <div class="form-field">
+                                <label>Срок действия</label>
+                                <input type="text" placeholder="MM/ГГ" maxlength="5">
+                            </div>
+                            <div class="form-field">
+                                <label>CVV</label>
+                                <input type="text" placeholder="000" maxlength="3">
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label>Имя на карте</label>
+                            <input type="text" placeholder="IVAN IVANOV">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="checkout-submit">
+                        <i class="fa-solid fa-lock"></i> Оплатить {{ amount|floatformat:0 }} ₸
+                    </button>
+
+                    <div class="checkout-secure">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        Безопасная оплата через защищенное соединение
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

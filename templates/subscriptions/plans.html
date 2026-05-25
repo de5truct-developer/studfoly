@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Тарифные планы — СтудФолио{% endblock %}
+
+{% block extra_css %}
+<style>
+.pricing-section {
+    padding: 60px 0;
+}
+
+.pricing-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.pricing-header h1 {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pricing-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.pricing-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 40px 30px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border-color);
+    transition: all var(--transition);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.pricing-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+}
+
+.pricing-card.featured {
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-accent);
+}
+
+.pricing-card.featured::before {
+    content: 'Популярный';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-gradient);
+    color: white;
+    padding: 4px 20px;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.pricing-card.current {
+    border-color: var(--success);
+}
+
+.pricing-card.current::after {
+    content: 'Ваш план';
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: var(--success);
+    color: white;
+    padding: 4px 15px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.pricing-plan-name {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.pricing-plan-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+}
+
+.pricing-price {
+    margin-bottom: 30px;
+}
+
+.pricing-amount {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.pricing-amount .currency {
+    font-size: 1.2rem;
+    vertical-align: super;
+}
+
+.pricing-period {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.pricing-features {
+    list-style: none;
+    margin-bottom: 30px;
+    flex-grow: 1;
+}
+
+.pricing-features li {
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.pricing-features li i {
+    width: 20px;
+    text-align: center;
+}
+
+.pricing-features li i.fa-check {
+    color: var(--success);
+}
+
+.pricing-features li i.fa-xmark {
+    color: var(--text-muted);
+}
+
+.pricing-features li.disabled {
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.pricing-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: all var(--transition);
+}
+
+.pricing-btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+}
+
+.pricing-btn-primary:hover {
+    box-shadow: var(--shadow-accent);
+    transform: translateY(-2px);
+}
+
+.pricing-btn-outline {
+    background: transparent;
+    color: var(--accent-primary);
+    border: 2px solid var(--accent-primary);
+}
+
+.pricing-btn-outline:hover {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.pricing-btn-disabled {
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    cursor: default;
+}
+
+.pricing-yearly-note {
+    text-align: center;
+    margin-top: 30px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.pricing-yearly-note span {
+    color: var(--success);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+    .pricing-header h1 {
+        font-size: 1.8rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="pricing-section">
+    <div class="container">
+        <div class="pricing-header" data-aos="fade-up">
+            <h1><i class="fa-solid fa-crown"></i> Тарифные планы</h1>
+            <p>Выберите подходящий план для развития вашего портфолио и карьеры</p>
+        </div>
+
+        <div class="pricing-grid">
+            {% for plan in plans %}
+            <div class="pricing-card {% if plan.name == 'basic' %}featured{% endif %} {% if current_plan and current_plan.id == plan.id %}current{% endif %}" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+                <div class="pricing-plan-name">
+                    {% if plan.name == 'free' %}<i class="fa-solid fa-seedling"></i>
+                    {% elif plan.name == 'basic' %}<i class="fa-solid fa-rocket"></i>
+                    {% else %}<i class="fa-solid fa-crown"></i>
+                    {% endif %}
+                    {{ plan.display_name }}
+                </div>
+                <p class="pricing-plan-desc">{{ plan.description }}</p>
+
+                <div class="pricing-price">
+                    {% if plan.price_monthly == 0 %}
+                    <span class="pricing-amount">Бесплатно</span>
+                    {% else %}
+                    <span class="pricing-amount"><span class="currency">₸</span>{{ plan.price_monthly|floatformat:0 }}</span>
+                    <span class="pricing-period">/ месяц</span>
+                    {% endif %}
+                </div>
+
+                <ul class="pricing-features">
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        {% if plan.max_projects == 0 %}Безлимитные проекты{% else %}До {{ plan.max_projects }} проектов{% endif %}
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-check"></i>
+                        {% if plan.max_skills == 0 %}Безлимитные навыки{% else %}До {{ plan.max_skills }} навыков{% endif %}
+                    </li>
+                    <li class="{% if not plan.can_message %}disabled{% endif %}">
+                        <i class="fa-solid {% if plan.can_message %}fa-check{% else %}fa-xmark{% endif %}"></i>
+                        Система сообщений
+                    </li>
+                    <li class="{% if not plan.analytics %}disabled{% endif %}">
+                        <i class="fa-solid {% if plan.analytics %}fa-check{% else %}fa-xmark{% endif %}"></i>
+                        Расширенная аналитика
+                    </li>
+                    <li class="{% if not plan.priority_support %}disabled{% endif %}">
+                        <i class="fa-solid {% if plan.priority_support %}fa-check{% else %}fa-xmark{% endif %}"></i>
+                        Приоритетная поддержка
+                    </li>
+                    <li class="{% if not plan.custom_domain %}disabled{% endif %}">
+                        <i class="fa-solid {% if plan.custom_domain %}fa-check{% else %}fa-xmark{% endif %}"></i>
+                        Свой домен портфолио
+                    </li>
+                    <li class="{% if not plan.featured_badge %}disabled{% endif %}">
+                        <i class="fa-solid {% if plan.featured_badge %}fa-check{% else %}fa-xmark{% endif %}"></i>
+                        Значок PRO в профиле
+                    </li>
+                </ul>
+
+                {% if current_plan and current_plan.id == plan.id %}
+                    <span class="pricing-btn pricing-btn-disabled">Текущий план</span>
+                {% elif plan.name == 'free' %}
+                    <span class="pricing-btn pricing-btn-disabled">Базовый доступ</span>
+                {% else %}
+                    <a href="{% url 'subscriptions:checkout' plan_name=plan.name %}" class="pricing-btn {% if plan.name == 'basic' %}pricing-btn-primary{% else %}pricing-btn-outline{% endif %}">
+                        Выбрать план
+                    </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <p class="pricing-yearly-note" data-aos="fade-up">
+            <i class="fa-solid fa-tag"></i>
+            Оплатите за год и <span>сэкономьте до 17%</span> от стоимости!
+        </p>
+    </div>
+</section>
+{% endblock %}
