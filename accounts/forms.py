@@ -52,7 +52,7 @@ class UserProfileForm(forms.ModelForm):
             'github', 'linkedin', 'website', 'skills_summary', 'is_available'
         ]
         widgets = {
-            'avatar': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'avatar': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'bio': forms.Textarea(attrs={
                 'class': 'form-control', 'rows': 4,
                 'placeholder': 'Расскажите о себе...'

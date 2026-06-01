@@ -42,14 +42,25 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="id_technologies">Технологии</label>
+                    <label>Технологии</label>
                     {{ form.technologies }}
-                    <small class="form-hint">Перечислите через запятую</small>
                     {% if form.technologies.errors %}<span class="form-error">{{ form.technologies.errors.0 }}</span>{% endif %}
+                    <div class="tech-picker" id="techPicker">
+                        {% for category, techs in technology_choices.items %}
+                        <div class="tech-picker-category">
+                            <span class="tech-picker-category-label">{{ category }}</span>
+                            <div class="tech-picker-tags">
+                                {% for tech in techs %}
+                                <button type="button" class="tech-picker-tag" data-tech="{{ tech }}">{{ tech }}</button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Изображение проекта</label>
+                    <label>Главное изображение</label>
                     {% if project and project.image %}
                     <div class="current-image">
                         <img src="{{ project.image.url }}" alt="" class="current-image-preview">
@@ -57,6 +68,26 @@
                     {% endif %}
                     {{ form.image }}
                     {% if form.image.errors %}<span class="form-error">{{ form.image.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Галерея проекта</label>
+                    {% if project and project.images.all %}
+                    <div class="gallery-existing" id="galleryExisting">
+                        {% for img in project.images.all %}
+                        <div class="gallery-existing-item" id="galleryItem-{{ img.id }}">
+                            <img src="{{ img.image.url }}" alt="{{ img.caption }}">
+                            <label class="gallery-delete-check" title="Удалить">
+                                <input type="checkbox" name="delete_images" value="{{ img.id }}">
+                                <i class="fa-solid fa-xmark"></i>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <input type="file" name="gallery_images" multiple accept="image/*" class="form-control" id="galleryInput">
+                    <small class="form-hint">Можно выбрать несколько изображений для галереи</small>
+                    <div class="gallery-preview" id="galleryPreview"></div>
                 </div>
 
                 <div class="form-row">
@@ -93,4 +124,64 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var techInput = document.getElementById('id_technologies');
+    var picker = document.getElementById('techPicker');
+    if (!techInput || !picker) return;
+
+    var selected = new Set();
+    var initial = techInput.value;
+    if (initial) {
+        initial.split(',').forEach(function(t) {
+            t = t.trim();
+            if (t) selected.add(t);
+        });
+    }
+
+    function updateInput() {
+        techInput.value = Array.from(selected).join(', ');
+    }
+
+    picker.querySelectorAll('.tech-picker-tag').forEach(function(tag) {
+        var tech = tag.getAttribute('data-tech');
+        if (selected.has(tech)) {
+            tag.classList.add('active');
+        }
+        tag.addEventListener('click', function() {
+            if (selected.has(tech)) {
+                selected.delete(tech);
+                tag.classList.remove('active');
+            } else {
+                selected.add(tech);
+                tag.classList.add('active');
+            }
+            updateInput();
+        });
+    });
+
+    // Gallery preview
+    var galleryInput = document.getElementById('galleryInput');
+    var galleryPreview = document.getElementById('galleryPreview');
+    if (galleryInput && galleryPreview) {
+        galleryInput.addEventListener('change', function() {
+            galleryPreview.innerHTML = '';
+            if (!this.files) return;
+            Array.from(this.files).forEach(function(file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var div = document.createElement('div');
+                    div.className = 'gallery-preview-item';
+                    div.innerHTML = '<img src="' + e.target.result + '" alt="">';
+                    galleryPreview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

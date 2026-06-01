@@ -10,6 +10,7 @@ import itertools
 
 from .models import Project, ProjectImage, Skill, Education, Experience
 from .forms import ProjectForm, SkillForm, EducationForm, ExperienceForm
+from .forms import TECHNOLOGY_CHOICES, ALL_TECHNOLOGIES
 from accounts.models import UserProfile
 
 
@@ -76,13 +77,13 @@ def project_list(request):
     if tech:
         projects = projects.filter(technologies__icontains=tech)
 
-    all_techs = set()
+    used_techs = set()
     for p in Project.objects.values_list('technologies', flat=True):
         for t in p.split(','):
             t = t.strip()
             if t:
-                all_techs.add(t)
-    all_techs = sorted(all_techs)
+                used_techs.add(t)
+    all_techs = [t for t in ALL_TECHNOLOGIES if t in used_techs]
 
     context = {
         'projects': projects,
@@ -125,7 +126,6 @@ def project_create(request):
         if form.is_valid():
             project = form.save(commit=False)
             project.user = request.user
-            # Ensure unique slug
             if not project.slug:
                 project.slug = slugify(project.title)
             original_slug = project.slug
@@ -134,6 +134,10 @@ def project_create(request):
                     break
                 project.slug = f'{original_slug}-{i}'
             project.save()
+
+            for idx, img in enumerate(request.FILES.getlist('gallery_images')):
+                ProjectImage.objects.create(project=project, image=img, order=idx)
+
             messages.success(request, 'Проект успешно создан!')
             return redirect('portfolio:project_detail', slug=project.slug)
     else:
@@ -141,6 +145,7 @@ def project_create(request):
     return render(request, 'portfolio/project_form.html', {
         'form': form,
         'title': 'Создать проект',
+        'technology_choices': TECHNOLOGY_CHOICES,
     })
 
 
@@ -151,6 +156,17 @@ def project_edit(request, slug):
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
             form.save()
+
+            delete_ids = request.POST.getlist('delete_images')
+            if delete_ids:
+                project.images.filter(id__in=delete_ids).delete()
+
+            existing_count = project.images.count()
+            for idx, img in enumerate(request.FILES.getlist('gallery_images')):
+                ProjectImage.objects.create(
+                    project=project, image=img, order=existing_count + idx
+                )
+
             messages.success(request, 'Проект успешно обновлён!')
             return redirect('portfolio:project_detail', slug=project.slug)
     else:
@@ -159,6 +175,7 @@ def project_edit(request, slug):
         'form': form,
         'title': 'Редактировать проект',
         'project': project,
+        'technology_choices': TECHNOLOGY_CHOICES,
     })
 
 

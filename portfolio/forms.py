@@ -1,6 +1,45 @@
 from django import forms
 from .models import Project, ProjectImage, Skill, Education, Experience
 
+TECHNOLOGY_CHOICES = {
+    'Языки программирования': [
+        'Python', 'JavaScript', 'TypeScript', 'Java', 'C#', 'C++', 'C',
+        'Go', 'Rust', 'PHP', 'Ruby', 'Swift', 'Kotlin', 'Dart', 'R', 'Scala',
+    ],
+    'Веб-технологии': [
+        'HTML', 'CSS', 'Sass',
+    ],
+    'Фронтенд': [
+        'React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js',
+        'jQuery', 'Bootstrap', 'Tailwind CSS',
+    ],
+    'Бэкенд': [
+        'Django', 'Flask', 'FastAPI', 'Node.js', 'Express', 'NestJS',
+        'Spring', 'Laravel', 'Ruby on Rails', 'ASP.NET',
+    ],
+    'Мобильная разработка': [
+        'Flutter', 'React Native', 'SwiftUI', 'Android SDK',
+    ],
+    'Базы данных': [
+        'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'SQLite', 'Firebase',
+    ],
+    'DevOps и инструменты': [
+        'Docker', 'Kubernetes', 'Git', 'Linux', 'Nginx',
+        'AWS', 'Azure', 'Google Cloud', 'CI/CD',
+    ],
+    'Data Science / ML': [
+        'TensorFlow', 'PyTorch', 'Pandas', 'NumPy', 'Scikit-learn',
+    ],
+    'Другое': [
+        'REST API', 'GraphQL', 'WebSocket', 'Unity', 'Unreal Engine',
+        'Figma', 'Webpack', 'Vite',
+    ],
+}
+
+ALL_TECHNOLOGIES = []
+for techs in TECHNOLOGY_CHOICES.values():
+    ALL_TECHNOLOGIES.extend(techs)
+
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -21,10 +60,7 @@ class ProjectForm(forms.ModelForm):
                 'placeholder': 'Подробное описание проекта...'
             }),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'technologies': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Python, Django, JavaScript, React'
-            }),
+            'technologies': forms.HiddenInput(),
             'demo_url': forms.URLInput(attrs={
                 'class': 'form-control', 'placeholder': 'https://demo.example.com'
             }),

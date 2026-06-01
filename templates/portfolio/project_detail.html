@@ -63,6 +63,9 @@
                     <a href="{% url 'portfolio:project_edit' slug=project.slug %}" class="btn btn-outline btn-sm">
                         <i class="fa-solid fa-pen"></i> Редактировать
                     </a>
+                    <a href="{% url 'portfolio:project_delete' slug=project.slug %}" class="btn btn-danger btn-sm">
+                        <i class="fa-solid fa-trash"></i> Удалить
+                    </a>
                     {% endif %}
                 </div>
 
