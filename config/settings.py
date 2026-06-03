@@ -21,7 +21,12 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://studenthubs.duckdns.org',
+    'http://studenthubs.duckdns.org',
 ]
+
+_extra_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+if _extra_origins:
+    CSRF_TRUSTED_ORIGINS += [o.strip() for o in _extra_origins.split(',') if o.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
