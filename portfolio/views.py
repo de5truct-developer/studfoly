@@ -99,7 +99,13 @@ def project_detail(request, slug):
         Project.objects.select_related('user', 'user__profile'), slug=slug
     )
     gallery = project.images.all()
-    comments = project.comments.filter(parent__isnull=True).select_related('user', 'user__profile')
+    comments = project.comments.filter(
+        parent__isnull=True
+    ).select_related('user', 'user__profile').prefetch_related(
+        'replies__user__profile',
+        'replies__replies__user__profile',
+        'replies__replies__replies__user__profile',
+    )
 
     user_has_liked = False
     user_has_bookmarked = False

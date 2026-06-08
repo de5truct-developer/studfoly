@@ -1,5 +1,5 @@
 /* ============================================================
-   СТУДФОЛИО — Main JavaScript
+   StudentHub — Main JavaScript
    Multi-user student portfolio platform
    ============================================================ */
 
@@ -280,40 +280,41 @@ document.addEventListener('DOMContentLoaded', function () {
                         ? '<img src="' + c.avatar_url + '" alt="" class="comment-avatar">'
                         : '<div class="comment-avatar-placeholder"><i class="fa-solid fa-user"></i></div>';
 
-                    var html = '<div class="comment" id="comment-' + c.id + '">'
+                    var isReply = !!c.parent_id;
+                    var html = '<div class="comment' + (isReply ? ' reply' : '') + '" id="comment-' + c.id + '">'
                         + '<div class="comment-header">'
                         + avatarHtml
                         + '<div class="comment-meta">'
-                        + '<a href="/accounts/profile/' + c.username + '/" class="comment-author">' + c.user + '</a>'
+                        + '<a href="/accounts/profile/' + c.username + '/" class="comment-author">' + escapeHtml(c.user) + '</a>'
                         + '<span class="comment-date">только что</span>'
                         + '</div>'
                         + '<button class="comment-delete-btn" data-comment-id="' + c.id + '" title="Удалить">'
                         + '<i class="fa-solid fa-trash"></i></button>'
                         + '</div>'
                         + '<p class="comment-text">' + escapeHtml(c.text) + '</p>'
+                        + '<button class="comment-reply-btn" data-comment-id="' + c.id + '">'
+                        + '<i class="fa-solid fa-reply"></i> Ответить</button>'
                         + '</div>';
 
-                    // Remove "no comments" message
                     var emptyMsg = commentsList.querySelector('.comments-empty');
                     if (emptyMsg) emptyMsg.remove();
 
                     if (c.parent_id) {
                         var parentComment = document.getElementById('comment-' + c.parent_id);
                         if (parentComment) {
-                            var repliesDiv = parentComment.querySelector('.comment-replies');
+                            var repliesDiv = parentComment.querySelector(':scope > .comment-replies');
                             if (!repliesDiv) {
                                 repliesDiv = document.createElement('div');
                                 repliesDiv.className = 'comment-replies';
                                 parentComment.appendChild(repliesDiv);
                             }
-                            repliesDiv.insertAdjacentHTML('beforeend', html.replace('class="comment"', 'class="comment reply"'));
+                            repliesDiv.insertAdjacentHTML('beforeend', html);
                         }
                     } else {
                         commentsList.insertAdjacentHTML('afterbegin', html);
                     }
 
                     commentForm.querySelector('textarea').value = '';
-                    // Remove reply hidden field if exists
                     var parentInput = commentForm.querySelector('input[name="parent_id"]');
                     if (parentInput) parentInput.remove();
                     var replyIndicator = commentForm.querySelector('.reply-indicator');

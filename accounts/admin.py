@@ -28,6 +28,6 @@ class UserAdmin(BaseUserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
-admin.site.site_header = 'СтудФолио — Админ-панель'
-admin.site.site_title = 'СтудФолио — Админ-панель'
+admin.site.site_header = 'StudentHub — Админ-панель'
+admin.site.site_title = 'StudentHub — Админ-панель'
 admin.site.index_title = 'Управление платформой'

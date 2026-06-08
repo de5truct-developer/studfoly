@@ -1,5 +1,5 @@
 /* ============================================================
-   СТУДФОЛИО — Complete Production Stylesheet
+   StudentHub — Complete Production Stylesheet
    Multi-user student portfolio platform
    ============================================================ */
 
@@ -982,8 +982,12 @@ img { max-width: 100%; height: auto; display: block; }
     border-radius: var(--radius-md);
 }
 .comment.reply {
-    margin-left: 40px;
+    margin-left: 32px;
     background: var(--bg-primary);
+    border-left: 3px solid var(--accent-primary);
+}
+.comment.reply .comment.reply {
+    border-left-color: var(--border-color);
 }
 .comment-header {
     display: flex;
@@ -2028,6 +2032,7 @@ img { max-width: 100%; height: auto; display: block; }
     .project-detail-title-row { flex-direction: column; }
     .project-detail-header { padding: 20px; }
     .comments-section { padding: 20px; }
+    .comment.reply { margin-left: 16px; }
     .project-detail-gallery { padding: 0 20px 20px; }
 
     .chat-message { max-width: 88%; }

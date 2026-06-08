@@ -1,0 +1,37 @@
+{% load static %}
+<div class="comment {% if depth > 0 %}reply{% endif %}" id="comment-{{ comment.id }}" data-depth="{{ depth }}">
+    <div class="comment-header">
+        {% if comment.user.profile.avatar %}
+        <img src="{{ comment.user.profile.avatar.url }}" alt="" class="comment-avatar">
+        {% else %}
+        <div class="comment-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+        {% endif %}
+        <div class="comment-meta">
+            <a href="{% url 'accounts:profile' username=comment.user.username %}" class="comment-author">
+                {{ comment.user.get_full_name|default:comment.user.username }}
+            </a>
+            <span class="comment-date">{{ comment.created_at|timesince }} назад</span>
+        </div>
+        {% if user == comment.user %}
+        <button class="comment-delete-btn" data-comment-id="{{ comment.id }}" title="Удалить">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+        {% endif %}
+    </div>
+    <p class="comment-text">{{ comment.text }}</p>
+    {% if user.is_authenticated %}
+    <button class="comment-reply-btn" data-comment-id="{{ comment.id }}">
+        <i class="fa-solid fa-reply"></i> Ответить
+    </button>
+    {% endif %}
+
+    {% with replies=comment.replies.all %}
+    {% if replies %}
+    <div class="comment-replies">
+        {% for reply in replies reversed %}
+            {% include 'portfolio/_comment.html' with comment=reply depth=depth|add:1 %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ project.title }} — СтудФолио{% endblock %}
+{% block title %}{{ project.title }} — StudentHub{% endblock %}
 
 {% block content %}
 <section class="page-section">
@@ -137,61 +137,7 @@
 
                 <div class="comments-list" id="commentsList">
                     {% for comment in comments %}
-                    <div class="comment" id="comment-{{ comment.id }}">
-                        <div class="comment-header">
-                            {% if comment.user.profile.avatar %}
-                            <img src="{{ comment.user.profile.avatar.url }}" alt="" class="comment-avatar">
-                            {% else %}
-                            <div class="comment-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
-                            {% endif %}
-                            <div class="comment-meta">
-                                <a href="{% url 'accounts:profile' username=comment.user.username %}" class="comment-author">
-                                    {{ comment.user.get_full_name|default:comment.user.username }}
-                                </a>
-                                <span class="comment-date">{{ comment.created_at|timesince }} назад</span>
-                            </div>
-                            {% if user == comment.user %}
-                            <button class="comment-delete-btn" data-comment-id="{{ comment.id }}" title="Удалить">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                            {% endif %}
-                        </div>
-                        <p class="comment-text">{{ comment.text }}</p>
-                        {% if user.is_authenticated %}
-                        <button class="comment-reply-btn" data-comment-id="{{ comment.id }}">
-                            <i class="fa-solid fa-reply"></i> Ответить
-                        </button>
-                        {% endif %}
-
-                        <!-- Replies -->
-                        {% if comment.replies.all %}
-                        <div class="comment-replies">
-                            {% for reply in comment.replies.all %}
-                            <div class="comment reply" id="comment-{{ reply.id }}">
-                                <div class="comment-header">
-                                    {% if reply.user.profile.avatar %}
-                                    <img src="{{ reply.user.profile.avatar.url }}" alt="" class="comment-avatar">
-                                    {% else %}
-                                    <div class="comment-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
-                                    {% endif %}
-                                    <div class="comment-meta">
-                                        <a href="{% url 'accounts:profile' username=reply.user.username %}" class="comment-author">
-                                            {{ reply.user.get_full_name|default:reply.user.username }}
-                                        </a>
-                                        <span class="comment-date">{{ reply.created_at|timesince }} назад</span>
-                                    </div>
-                                    {% if user == reply.user %}
-                                    <button class="comment-delete-btn" data-comment-id="{{ reply.id }}" title="Удалить">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                                <p class="comment-text">{{ reply.text }}</p>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
+                        {% include 'portfolio/_comment.html' with comment=comment depth=0 %}
                     {% empty %}
                     <p class="comments-empty">Комментариев пока нет. Будьте первым!</p>
                     {% endfor %}
